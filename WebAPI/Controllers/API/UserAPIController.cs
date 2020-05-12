@@ -51,6 +51,7 @@ namespace WebAPI.Controllers.API
                 isActive = true
             };
             await _SQLServerDbContext.AddAsync(user);
+            await _SQLServerDbContext.SaveChangesAsync();
         }
         [HttpGet]
         public async Task<UserDto> Login(string userName, string password)
@@ -88,6 +89,21 @@ namespace WebAPI.Controllers.API
                 throw new UserFriendlyException($"User: {old.UserName} đang bị khóa!!!");
             }
             old.Password = password;
+            await _SQLServerDbContext.SaveChangesAsync();
+        }
+        [HttpPost]
+        public async Task ChangeInformation(UserDto dto)
+        {
+            var old = await _SQLServerDbContext.Users.FirstOrDefaultAsync(s => s.Id == dto.Id);
+            if (old == null)
+            {
+                throw new UserFriendlyException($"Không tồn tại user: {old.UserName}!!!");
+            }
+            if (old.isActive == false)
+            {
+                throw new UserFriendlyException($"User: {old.UserName} đang bị khóa!!!");
+            }
+            old.Name = dto.Name;
             await _SQLServerDbContext.SaveChangesAsync();
         }
     }

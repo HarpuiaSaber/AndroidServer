@@ -10,6 +10,7 @@ namespace WebAPI.Entity
     [Table("User")]
     public class User
     {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
         public long Id { get; set; }
         [Required]
