@@ -32,7 +32,8 @@ namespace WebAPI.Controllers.API
                     Id = s.Id,
                     Name = s.Name,
                     Password = s.Password,
-                    UserName = s.UserName
+                    UserName = s.UserName,
+                    IsActive = s.IsActive
                 }).ToListAsync();
         }
         [HttpPost]
@@ -48,7 +49,7 @@ namespace WebAPI.Controllers.API
                 Name = dto.Name,
                 Password = dto.Password,
                 UserName = dto.UserName,
-                isActive = true
+                IsActive = true
             };
             await _SQLServerDbContext.AddAsync(user);
             await _SQLServerDbContext.SaveChangesAsync();
@@ -61,7 +62,7 @@ namespace WebAPI.Controllers.API
             {
                 throw new UserFriendlyException($"Không tồn tại user: {userName}!!!");
             }
-            if (user.isActive == false)
+            if (user.IsActive == false)
             {
                 throw new UserFriendlyException($"User: {userName} đang bị khóa!!!");
             }
@@ -84,7 +85,7 @@ namespace WebAPI.Controllers.API
             {
                 throw new UserFriendlyException($"Không tồn tại user: {old.UserName}!!!");
             }
-            if (old.isActive == false)
+            if (old.IsActive == false)
             {
                 throw new UserFriendlyException($"User: {old.UserName} đang bị khóa!!!");
             }
@@ -99,7 +100,7 @@ namespace WebAPI.Controllers.API
             {
                 throw new UserFriendlyException($"Không tồn tại user: {old.UserName}!!!");
             }
-            if (old.isActive == false)
+            if (old.IsActive == false)
             {
                 throw new UserFriendlyException($"User: {old.UserName} đang bị khóa!!!");
             }

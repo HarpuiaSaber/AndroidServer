@@ -19,6 +19,6 @@ namespace WebAPI.Entity
         public string Password { get; set; }
         [Required]
         public string Name { get; set; }
-        public bool isActive { get; set; }
+        public bool IsActive { get; set; }
     }
 }

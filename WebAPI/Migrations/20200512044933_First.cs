@@ -15,7 +15,7 @@ namespace WebAPI.Migrations
                     UserName = table.Column<string>(nullable: false),
                     Password = table.Column<string>(nullable: false),
                     Name = table.Column<string>(nullable: false),
-                    isActive = table.Column<bool>(nullable: false)
+                    IsActive = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {
