@@ -5,8 +5,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using WebAPI.Dao;
-using WebAPI.Exception;
+using System;
+using WebAPI.Daos;
+using WebAPI.Exceptions;
 
 namespace WebAPI
 {
@@ -29,6 +30,11 @@ namespace WebAPI
             });
             services.AddDbContext<SQLServerDbContext>(options =>
                    options.UseSqlServer(Configuration.GetConnectionString("SQLServer")));
+            services.AddDistributedMemoryCache();
+            services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromSeconds(10800);
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -38,7 +44,6 @@ namespace WebAPI
             {
                 app.UseDeveloperExceptionPage();
             }
-            app.UseMiddleware<CustomExceptionMiddleware>();
 
             app.UseHttpsRedirection();
 
@@ -48,7 +53,7 @@ namespace WebAPI
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapControllers();
             });
 
             app.UseSwagger();
@@ -57,6 +62,9 @@ namespace WebAPI
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
             });
+
+            app.UseMiddleware<ExceptionMiddleware>();
+       
         }
     }
 }

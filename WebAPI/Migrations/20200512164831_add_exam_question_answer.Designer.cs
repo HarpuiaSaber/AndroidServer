@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebAPI.Daos;
 
 namespace WebAPI.Migrations
 {
     [DbContext(typeof(SQLServerDbContext))]
-    partial class SQLServerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200512164831_add_exam_question_answer")]
+    partial class add_exam_question_answer
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -19,7 +21,7 @@ namespace WebAPI.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("WebAPI.Entities.Answer", b =>
+            modelBuilder.Entity("WebAPI.Entity.Answer", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -42,7 +44,7 @@ namespace WebAPI.Migrations
                     b.ToTable("Answer");
                 });
 
-            modelBuilder.Entity("WebAPI.Entities.Exam", b =>
+            modelBuilder.Entity("WebAPI.Entity.Exam", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -66,7 +68,7 @@ namespace WebAPI.Migrations
                     b.ToTable("Exam");
                 });
 
-            modelBuilder.Entity("WebAPI.Entities.Question", b =>
+            modelBuilder.Entity("WebAPI.Entity.Question", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -87,29 +89,7 @@ namespace WebAPI.Migrations
                     b.ToTable("Question");
                 });
 
-            modelBuilder.Entity("WebAPI.Entities.QuestionInExam", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<long>("ExamId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("QuestionId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ExamId");
-
-                    b.HasIndex("QuestionId");
-
-                    b.ToTable("QuestionInExam");
-                });
-
-            modelBuilder.Entity("WebAPI.Entities.User", b =>
+            modelBuilder.Entity("WebAPI.Entity.User", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -136,24 +116,9 @@ namespace WebAPI.Migrations
                     b.ToTable("User");
                 });
 
-            modelBuilder.Entity("WebAPI.Entities.Answer", b =>
+            modelBuilder.Entity("WebAPI.Entity.Answer", b =>
                 {
-                    b.HasOne("WebAPI.Entities.Question", "Question")
-                        .WithMany()
-                        .HasForeignKey("QuestionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("WebAPI.Entities.QuestionInExam", b =>
-                {
-                    b.HasOne("WebAPI.Entities.Exam", "Exam")
-                        .WithMany()
-                        .HasForeignKey("ExamId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("WebAPI.Entities.Question", "Question")
+                    b.HasOne("WebAPI.Entity.Question", "Question")
                         .WithMany()
                         .HasForeignKey("QuestionId")
                         .OnDelete(DeleteBehavior.Cascade)
