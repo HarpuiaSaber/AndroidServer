@@ -53,7 +53,7 @@ namespace WebAPI.Controllers.API
             return await QueryableEx.GetPaginationResultAsync(queryExam, examSearch.Param);
         }
         [HttpPost]
-        public async Task<ActionResult<ExamDto>> GetById(long id)
+        public async Task<ActionResult<ExamDto>> GetQuestionInExam(long id)
         {
             var exam = await _context.Exams.Where(s => s.Id == id).FirstOrDefaultAsync();
             if (exam == null)
