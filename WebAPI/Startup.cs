@@ -29,7 +29,7 @@ namespace WebAPI
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Android Server API", Version = "v1" });
             });
             services.AddDbContext<SQLServerDbContext>(options =>
                    options.UseSqlServer(Configuration.GetConnectionString("SQLServer")));
@@ -82,7 +82,7 @@ namespace WebAPI
 
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Android Server API V1");
             });
 
             app.UseMiddleware<ExceptionMiddleware>();
