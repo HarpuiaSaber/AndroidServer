@@ -27,7 +27,7 @@ namespace WebAPI.Controllers.API
             _context = context;
         }
         [HttpPost]
-        public async Task<ActionResult<PaginationResult<ExamViewDto>>> GetPagging(ExamSearch examSearch)
+        public async Task<PaginationResult<ExamViewDto>> GetPagging(ExamSearch examSearch)
         {
             var query = _context.Exams.AsQueryable();
             if (examSearch.StartDate != null)
@@ -58,32 +58,53 @@ namespace WebAPI.Controllers.API
             var exam = await _context.Exams.Where(s => s.Id == id).FirstOrDefaultAsync();
             if (exam == null)
             {
-                throw new ApplicationException($"Không tồn tại bài thi: {exam.Content}");
+                return StatusCode((int)HttpStatusCode.InternalServerError, $"Không tồn tại: {exam.Content}!!!");
             }
             var queryQuestionInExam = _context.QuestionInExams.Where(s => s.ExamId == id);
             var queryQuestion = _context.Questions.AsQueryable();
             var queyAnswer = _context.Answers.AsQueryable();
-            var questions = await (from qe in queryQuestionInExam
-                                   join q in queryQuestion on qe.QuestionId equals q.Id
-                                   join a in queyAnswer on q.Id equals a.QuestionId into t
-                                   select new QuestionDto
-                                   {
-                                       Id = q.Id,
-                                       Content = q.Content,
-                                       Explanation = q.Explanation,
-                                       Type = q.Type,
-                                       Answers = t.Select(s => new AnswerDto
-                                       {
-                                           Id = s.Id,
-                                           Content = s.Content,
-                                           IsCorrect = s.IsCorrect
-                                       })
-                                   }).ToListAsync();
+            var questions = from qe in queryQuestionInExam
+                            join q in queryQuestion on qe.QuestionId equals q.Id
+                            join a in queyAnswer on q.Id equals a.QuestionId into t
+                            select new QuestionDto
+                            {
+                                Id = q.Id,
+                                Content = q.Content,
+                                Explanation = q.Explanation,
+                                Type = q.Type,
+                                Answers = t.Select(s => new AnswerDto
+                                {
+                                    Id = s.Id,
+                                    Content = s.Content,
+                                    IsCorrect = s.IsCorrect
+                                })
+                            };
             return new ExamDto
             {
                 Id = exam.Id,
-                Questions = questions
+                Questions = await questions.ToListAsync()
             };
+        }
+        [HttpGet]
+        public async Task Create(ExamViewDto dto)
+        {
+            var exam = new Exam
+            {
+                Content = dto.Content,
+                Time = dto.Time,
+                Type = dto.Type,
+                CreatedDate = DateTime.Now
+            };
+            await _context.Exams.AddAsync(exam);
+            await _context.SaveChangesAsync();
+            var listQuestion = await _context.Questions.OrderBy(s => Guid.NewGuid()).Take(50)
+                .Select(s => new QuestionInExam
+                {
+                    QuestionId = s.Id,
+                    ExamId = exam.Id
+                }).ToListAsync();
+            await _context.QuestionInExams.AddRangeAsync(listQuestion);
+            await _context.SaveChangesAsync();
         }
     }
 }

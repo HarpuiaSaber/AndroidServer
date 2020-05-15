@@ -22,7 +22,7 @@ namespace WebAPI.Controllers.API
             _context = context;
         }
         [HttpGet]
-        public async Task<ActionResult<List<QuestionDto>>> GetRandomQuestion()
+        public async Task<List<QuestionDto>> GetRandomQuestion()
         {
             var listQuestion = await _context.Questions.OrderBy(s => Guid.NewGuid()).Take(50).ToListAsync();
             var queryAnswer = _context.Answers.AsQueryable();
@@ -40,8 +40,28 @@ namespace WebAPI.Controllers.API
                             Content = s.Content,
                             IsCorrect = s.IsCorrect
                         })
-
                     }).ToList();
+        }
+        [HttpGet]
+        public async Task<List<QuestionDto>> GetQuestionById(long id)
+        {
+            var listQuestion = _context.Questions.Where(s => s.Id == id);
+            var queryAnswer = _context.Answers.AsQueryable();
+            return await (from q in listQuestion
+                          join a in queryAnswer on q.Id equals a.QuestionId into t
+                          select new QuestionDto
+                          {
+                              Id = q.Id,
+                              Content = q.Content,
+                              Explanation = q.Explanation,
+                              Type = q.Type,
+                              Answers = t.Select(s => new AnswerDto
+                              {
+                                  Id = s.Id,
+                                  Content = s.Content,
+                                  IsCorrect = s.IsCorrect
+                              })
+                          }).ToListAsync();
         }
     }
 }
