@@ -13,5 +13,6 @@ namespace WebAPI.Models.Dto
         public int Time { get; set; }
         public ExamType Type { get; set; }
         public DateTime CreatedDate { get; set; }
+        public int UserResult { get; set; }
     }
 }

@@ -45,7 +45,9 @@ namespace WebAPI
             //    x.TokenValidationParameters = new TokenValidationParameters
             //    {
             //        ValidateIssuerSigningKey = true,
-            //        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration.GetSection("AppSettings").Get<AppSettings>().Secret)),
+            //        IssuerSigningKey = new SymmetricSecurityKey(
+            //            Encoding.ASCII.GetBytes(Configuration.GetSection("AppSettings")
+            //            .Get<AppSettings>().Secret)),
             //        ValidateIssuer = false,
             //        ValidateAudience = false
             //    };
@@ -64,12 +66,12 @@ namespace WebAPI
 
             app.UseRouting();
 
-            //app.UseCors(x => x
-            //     .AllowAnyOrigin()
-            //     .AllowAnyMethod()
-            //     .AllowAnyHeader());
+            app.UseCors(x => x
+                 .AllowAnyOrigin()
+                 .AllowAnyMethod()
+                 .AllowAnyHeader());
 
-            app.UseAuthentication();
+           // app.UseAuthentication();
 
             app.UseAuthorization();
 

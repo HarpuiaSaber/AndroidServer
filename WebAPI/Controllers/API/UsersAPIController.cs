@@ -32,23 +32,21 @@ namespace WebAPI.Controllers.API
                 {
                     Id = s.Id,
                     Name = s.Name,
-                    Password = s.Password,
                     UserName = s.UserName,
                     IsActive = s.IsActive
                 }).ToListAsync();
         }
         [HttpGet]
-        public async Task<List<UserDto>> GetById(long id)
+        public async Task<UserDto> GetById(long id)
         {
             return await _context.Users.Where(s => s.Id == id)
                 .Select(s => new UserDto
                 {
                     Id = s.Id,
                     Name = s.Name,
-                    Password = s.Password,
                     UserName = s.UserName,
                     IsActive = s.IsActive
-                }).ToListAsync();
+                }).FirstOrDefaultAsync();
         }
         [HttpPost]
         public async Task<ActionResult> Create(UserDto dto)

@@ -27,8 +27,9 @@ namespace WebAPI.Controllers.API
             _context = context;
         }
         [HttpPost]
-        public async Task<PaginationResult<ExamViewDto>> GetPagging(ExamSearch examSearch)
+        public async Task<List<ExamViewDto>> GetAll(ExamSearch examSearch)
         {
+            //search by date
             var query = _context.Exams.AsQueryable();
             if (examSearch.StartDate != null)
             {
@@ -42,18 +43,87 @@ namespace WebAPI.Controllers.API
             {
                 query = query.Where(s => s.Type > examSearch.Type);
             }
-            var queryExam = query.Select(s => new ExamViewDto
+            return await query.Select(s => new ExamViewDto
             {
                 Id = s.Id,
                 Content = s.Content,
                 CreatedDate = s.CreatedDate,
                 Time = s.Time,
                 Type = s.Type
-            }).OrderBy(s => s.CreatedDate);
-            return await QueryableEx.GetPaginationResultAsync(queryExam, examSearch.Param);
+            }).ToListAsync();
         }
         [HttpPost]
-        public async Task<ActionResult<ExamDto>> GetQuestionsInExam(long id)
+        public async Task<List<ExamViewDto>> GetAllOfUser(ExamSearch examSearch, long userId)
+        {
+            //search by date
+            var query = _context.Exams.AsQueryable();
+            if (examSearch.StartDate != null)
+            {
+                query = query.Where(s => s.CreatedDate >= examSearch.StartDate);
+            }
+            if (examSearch.EndDate != null)
+            {
+                query = query.Where(s => s.CreatedDate < examSearch.EndDate);
+            }
+            if (examSearch.Type != null)
+            {
+                query = query.Where(s => s.Type > examSearch.Type);
+            }
+            return await (from e in query
+                          join r in _context.Results.Where(s => s.UserId == userId) on e.Id equals r.ExamId into t
+                          select new ExamViewDto
+                          {
+                              Id = e.Id,
+                              Content = e.Content,
+                              CreatedDate = e.CreatedDate,
+                              Time = e.Time,
+                              Type = e.Type,
+                              UserResult = t.Select(x => x.TotalCorrect).FirstOrDefault()
+                          }).ToListAsync();
+        }
+        [HttpGet]
+        public async Task Create(ExamViewDto dto)
+        {
+            var exam = new Exam
+            {
+                Content = dto.Content,
+                Time = dto.Time,
+                Type = dto.Type,
+                CreatedDate = DateTime.Now
+            };
+            await _context.Exams.AddAsync(exam);
+            bool examSaved = await _context.SaveChangesAsync() > 0;
+            if (examSaved)
+            {
+                // get questions in 3 type
+                var listQuestionLaw = await _context.Questions.Where(s => s.Type == QuestionType.Law)
+                    .OrderBy(s => Guid.NewGuid()).Take(10)
+                    .Select(s => new QuestionInExam
+                    {
+                        QuestionId = s.Id,
+                        ExamId = exam.Id
+                    }).ToListAsync();
+                var listQuestionTrafficSign = await _context.Questions.Where(s => s.Type == QuestionType.TrafficSign)
+                    .OrderBy(s => Guid.NewGuid()).Take(10)
+                    .Select(s => new QuestionInExam
+                    {
+                        QuestionId = s.Id,
+                        ExamId = exam.Id
+                    }).ToListAsync();
+                var listQuestionSituation = await _context.Questions.Where(s => s.Type == QuestionType.Situation)
+                    .OrderBy(s => Guid.NewGuid()).Take(10)
+                    .Select(s => new QuestionInExam
+                    {
+                        QuestionId = s.Id,
+                        ExamId = exam.Id
+                    }).ToListAsync();
+                await _context.QuestionInExams.AddRangeAsync(listQuestionLaw.Concat(listQuestionTrafficSign
+                    .Concat(listQuestionSituation)));
+                await _context.SaveChangesAsync();
+            }
+        }
+        [HttpPost]
+        public async Task<ActionResult<ExamDto>> Get(long id)
         {
             var exam = await _context.Exams.Where(s => s.Id == id).FirstOrDefaultAsync();
             if (exam == null)
@@ -85,26 +155,49 @@ namespace WebAPI.Controllers.API
                 Questions = await questions.ToListAsync()
             };
         }
-        [HttpGet]
-        public async Task Create(ExamViewDto dto)
+        [HttpPost]
+        public async Task SaveUserResult(ResultDto dto)
         {
-            var exam = new Exam
-            {
-                Content = dto.Content,
-                Time = dto.Time,
-                Type = dto.Type,
-                CreatedDate = DateTime.Now
-            };
-            await _context.Exams.AddAsync(exam);
-            await _context.SaveChangesAsync();
-            var listQuestion = await _context.Questions.OrderBy(s => Guid.NewGuid()).Take(50)
-                .Select(s => new QuestionInExam
+            //Result result = new Result
+            //{
+            //    ExamId = dto.ExamId,
+            //    UserId = dto.UserId,
+            //    Time = dto.Time,
+            //    TotalCorrect = dto.TotalCorrect
+            //};
+            //await _context.Results.AddAsync(result);
+            ////update wrong question
+            //var userWrongQuestions = await _context.WrongQuestions.Where(s => s.UserId == dto.UserId && !s.HasDone)
+            //    .ToListAsync();
+            //var wrongIds = userWrongQuestions.Select(s => s.QuestionId);
+            //var hasDone = userWrongQuestions.Where(s => dto.CorrectQuestions.Contains(s.QuestionId))
+            //    .Select(s => s);
+            //var needToAdd = dto.WrongQuestions.Except(wrongIds)
+            //    .Select(s => new WrongQuestion
+            //    {
+            //        QuestionId = s,
+            //        UserId = dto.UserId,
+            //        HasDone = false
+            //    });
+            //await _context.WrongQuestions.AddRangeAsync(needToAdd);
+            //foreach (var old in hasDone)
+            //{
+            //    old.HasDone = true;
+            //}
+            //await _context.SaveChangesAsync();
+        }
+        [HttpGet]
+        public async Task<List<RankingDto>> Ranking(long id)
+        {
+            return await _context.Results.Where(s => s.ExamId == id)
+                .OrderByDescending(s => s.TotalCorrect).ThenByDescending(s => s.Time)
+                .Select(s => new RankingDto
                 {
-                    QuestionId = s.Id,
-                    ExamId = exam.Id
+                    UserId = s.UserId,
+                    UserName = s.User.UserName,
+                    TotalCorrect = s.TotalCorrect,
+                    Time = s.Time
                 }).ToListAsync();
-            await _context.QuestionInExams.AddRangeAsync(listQuestion);
-            await _context.SaveChangesAsync();
         }
     }
 }

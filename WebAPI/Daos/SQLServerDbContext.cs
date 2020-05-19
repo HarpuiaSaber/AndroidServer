@@ -15,5 +15,8 @@ namespace WebAPI.Daos
         public DbSet<Answer> Answers { get; set; }
         public DbSet<Exam> Exams { get; set; }
         public DbSet<QuestionInExam> QuestionInExams { get; set; }
+        public DbSet<Result> Results { get; set; }
+        public DbSet<WrongQuestion> WrongQuestions { get; set; }
+        public DbSet<UserAnswer> UserAnswers { get; set; }
     }
 }
