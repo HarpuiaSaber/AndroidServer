@@ -1,8 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using WebAPI.Entities;
 
 namespace WebAPI.Daos
@@ -16,7 +12,6 @@ namespace WebAPI.Daos
         public DbSet<Exam> Exams { get; set; }
         public DbSet<QuestionInExam> QuestionInExams { get; set; }
         public DbSet<Result> Results { get; set; }
-        public DbSet<WrongQuestion> WrongQuestions { get; set; }
-        public DbSet<UserAnswer> UserAnswers { get; set; }
+        public DbSet<FailQuestion> FailQuestions { get; set; }
     }
 }

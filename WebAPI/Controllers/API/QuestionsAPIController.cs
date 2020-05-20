@@ -66,7 +66,7 @@ namespace WebAPI.Controllers.API
         [HttpGet]
         public async Task<List<WrongQuestionDto>> GetWrongQuestions(long userId)
         {
-            var userWrongQuestions = _context.WrongQuestions.Where(s => s.UserId == userId && !s.HasDone);
+            var userWrongQuestions = _context.FailQuestions.Where(s => s.UserId == userId && !s.Passed);
             var listQuestion = _context.Questions.Where(s => s.Id == userId);
             return await (from q in listQuestion
                           join w in userWrongQuestions on q.Id equals w.QuestionId

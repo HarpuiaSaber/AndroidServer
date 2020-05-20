@@ -137,7 +137,8 @@ namespace WebAPI.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<long>(nullable: false),
                     QuestionId = table.Column<long>(nullable: false),
-                    HasDone = table.Column<bool>(nullable: false)
+                    Times = table.Column<int>(nullable: false),
+                    Passed = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -150,39 +151,6 @@ namespace WebAPI.Migrations
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_WrongAnswer_User_UserId",
-                        column: x => x.UserId,
-                        principalTable: "User",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "UserAnswer",
-                columns: table => new
-                {
-                    Id = table.Column<long>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<long>(nullable: false),
-                    ExamId = table.Column<long>(nullable: false),
-                    AnswerId = table.Column<long>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserAnswer", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_UserAnswer_Answer_AnswerId",
-                        column: x => x.AnswerId,
-                        principalTable: "Answer",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_UserAnswer_Exam_ExamId",
-                        column: x => x.ExamId,
-                        principalTable: "Exam",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_UserAnswer_User_UserId",
                         column: x => x.UserId,
                         principalTable: "User",
                         principalColumn: "Id",
@@ -215,21 +183,6 @@ namespace WebAPI.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserAnswer_AnswerId",
-                table: "UserAnswer",
-                column: "AnswerId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UserAnswer_ExamId",
-                table: "UserAnswer",
-                column: "ExamId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UserAnswer_UserId",
-                table: "UserAnswer",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_WrongAnswer_QuestionId",
                 table: "WrongAnswer",
                 column: "QuestionId");
@@ -243,28 +196,25 @@ namespace WebAPI.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "Answer");
+
+            migrationBuilder.DropTable(
                 name: "QuestionInExam");
 
             migrationBuilder.DropTable(
                 name: "Result");
 
             migrationBuilder.DropTable(
-                name: "UserAnswer");
-
-            migrationBuilder.DropTable(
                 name: "WrongAnswer");
-
-            migrationBuilder.DropTable(
-                name: "Answer");
 
             migrationBuilder.DropTable(
                 name: "Exam");
 
             migrationBuilder.DropTable(
-                name: "User");
+                name: "Question");
 
             migrationBuilder.DropTable(
-                name: "Question");
+                name: "User");
         }
     }
 }

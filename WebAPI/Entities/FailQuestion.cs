@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
+
 
 namespace WebAPI.Entities
 {
-    [Table("WrongAnswer")]
-    public class WrongQuestion
+    [Table("FailQuestion")]
+    public class FailQuestion
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
@@ -19,6 +16,7 @@ namespace WebAPI.Entities
         public long QuestionId { get; set; }
         [ForeignKey(nameof(QuestionId))]
         public Question Question { get; set; }
-        public bool HasDone { get; set; }
+        public int Times { get; set; }
+        public bool Passed { get; set; }
     }
 }

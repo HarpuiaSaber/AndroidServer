@@ -3,16 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebAPI.Daos;
 using WebAPI.Entities;
-using WebAPI.Extensions;
-using WebAPI.Models;
 using WebAPI.Models.Dto;
 using WebAPI.Models.Search;
-using WebAPI.Paginations;
 
 namespace WebAPI.Controllers.API
 {
@@ -29,7 +25,6 @@ namespace WebAPI.Controllers.API
         [HttpPost]
         public async Task<List<ExamViewDto>> GetAll(ExamSearch examSearch)
         {
-            //search by date
             var query = _context.Exams.AsQueryable();
             if (examSearch.StartDate != null)
             {
@@ -55,7 +50,6 @@ namespace WebAPI.Controllers.API
         [HttpPost]
         public async Task<List<ExamViewDto>> GetAllOfUser(ExamSearch examSearch, long userId)
         {
-            //search by date
             var query = _context.Exams.AsQueryable();
             if (examSearch.StartDate != null)
             {
@@ -156,42 +150,56 @@ namespace WebAPI.Controllers.API
             };
         }
         [HttpPost]
-        public async Task SaveUserResult(ResultDto dto)
+        public async Task SaveResult(UserAnswerDto dto)
         {
-            //Result result = new Result
-            //{
-            //    ExamId = dto.ExamId,
-            //    UserId = dto.UserId,
-            //    Time = dto.Time,
-            //    TotalCorrect = dto.TotalCorrect
-            //};
-            //await _context.Results.AddAsync(result);
-            ////update wrong question
-            //var userWrongQuestions = await _context.WrongQuestions.Where(s => s.UserId == dto.UserId && !s.HasDone)
-            //    .ToListAsync();
-            //var wrongIds = userWrongQuestions.Select(s => s.QuestionId);
-            //var hasDone = userWrongQuestions.Where(s => dto.CorrectQuestions.Contains(s.QuestionId))
-            //    .Select(s => s);
-            //var needToAdd = dto.WrongQuestions.Except(wrongIds)
-            //    .Select(s => new WrongQuestion
-            //    {
-            //        QuestionId = s,
-            //        UserId = dto.UserId,
-            //        HasDone = false
-            //    });
-            //await _context.WrongQuestions.AddRangeAsync(needToAdd);
-            //foreach (var old in hasDone)
-            //{
-            //    old.HasDone = true;
-            //}
-            //await _context.SaveChangesAsync();
+            //save result
+            Result result = new Result
+            {
+                ExamId = dto.ExamId,
+                UserId = dto.UserId,
+                Time = dto.Time,
+                TotalCorrect = dto.TotalCorrect
+            };
+            await _context.Results.AddAsync(result);
+            await _context.SaveChangesAsync();
+            //get old fail
+            var failQuestions = await _context.FailQuestions.Where(s => s.UserId == dto.UserId).ToListAsync();
+            var failQuestionIds = failQuestions.Select(s => s.QuestionId);
+            //add new fail
+            var newFails = dto.Answers.Where(s => !s.Value).Select(s => s.Key);
+            var needToAdd = newFails.Except(failQuestionIds)
+                .Select(s => new FailQuestion
+                {
+                    QuestionId = s,
+                    UserId = dto.UserId,
+                    Times = 1,
+                    Passed = false
+                });
+            await _context.FailQuestions.AddRangeAsync(needToAdd);
+            //update times fail
+            var increaseTimesIds = failQuestionIds.Intersect(newFails);
+            var increaseTimes = failQuestions.Where(s => increaseTimesIds.Contains(s.Id)).Select(s => s);
+            foreach (var old in increaseTimes)
+            {
+                old.Times += 1;
+            }
+            _context.FailQuestions.UpdateRange(increaseTimes);
+            //update passed
+            var newCorrects = dto.Answers.Where(s => s.Value).Select(s => s.Key);
+            var passed = failQuestions.Where(s => newCorrects.Contains(s.QuestionId)).Select(s => s);
+            foreach (var old in passed)
+            {
+                old.Passed = true;
+            }
+            _context.FailQuestions.UpdateRange(passed);
+            await _context.SaveChangesAsync();
         }
         [HttpGet]
-        public async Task<List<RankingDto>> Ranking(long id)
+        public async Task<List<ResultDto>> Ranking(long id)
         {
             return await _context.Results.Where(s => s.ExamId == id)
                 .OrderByDescending(s => s.TotalCorrect).ThenByDescending(s => s.Time)
-                .Select(s => new RankingDto
+                .Select(s => new ResultDto
                 {
                     UserId = s.UserId,
                     UserName = s.User.UserName,

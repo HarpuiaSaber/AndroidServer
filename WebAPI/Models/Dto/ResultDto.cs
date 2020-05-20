@@ -8,6 +8,7 @@ namespace WebAPI.Models.Dto
     public class ResultDto
     {
         public long UserId { get; set; }
+        public string UserName { get; set; }
         public long ExamId { get; set; }
         public int Time { get; set; }
         public int TotalCorrect { get; set; }
