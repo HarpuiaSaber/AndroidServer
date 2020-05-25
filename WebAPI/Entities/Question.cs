@@ -12,6 +12,7 @@ namespace WebAPI.Entities
         public string Content { get; set; }
         public string Explanation { get; set; }
         public QuestionType Type { get; set; }
+        public string Image { get; set; }
     }
 
     public enum QuestionType
