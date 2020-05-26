@@ -12,6 +12,7 @@ namespace WebAPI.Models.Dto
         public string Content { get; set; }
         public string Explanation { get; set; }
         public QuestionType Type { get; set; }
+        public string Image { get; set; }
         public IEnumerable<AnswerDto> Answers { get; set; }
     }
 }

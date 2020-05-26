@@ -82,7 +82,7 @@ namespace WebAPI.Controllers.API
             {
                 Content = dto.Content,
                 Time = dto.Time,
-                Type = dto.Type,
+                Type = ExamType.Trial,
                 CreatedDate = DateTime.Now
             };
             await _context.Exams.AddAsync(exam);
@@ -98,14 +98,14 @@ namespace WebAPI.Controllers.API
                         ExamId = exam.Id
                     }).ToListAsync();
                 var listQuestionTrafficSign = await _context.Questions.Where(s => s.Type == QuestionType.TrafficSign)
-                    .OrderBy(s => Guid.NewGuid()).Take(10)
+                    .OrderBy(s => Guid.NewGuid()).Take(5)
                     .Select(s => new QuestionInExam
                     {
                         QuestionId = s.Id,
-                        ExamId = exam.Id
+                        ExamId = exam.Id,
                     }).ToListAsync();
                 var listQuestionSituation = await _context.Questions.Where(s => s.Type == QuestionType.Situation)
-                    .OrderBy(s => Guid.NewGuid()).Take(10)
+                    .OrderBy(s => Guid.NewGuid()).Take(5)
                     .Select(s => new QuestionInExam
                     {
                         QuestionId = s.Id,
@@ -199,6 +199,7 @@ namespace WebAPI.Controllers.API
         {
             return await _context.Results.Where(s => s.ExamId == id)
                 .OrderByDescending(s => s.TotalCorrect).ThenByDescending(s => s.Time)
+                .Take(10)
                 .Select(s => new ResultDto
                 {
                     UserId = s.UserId,

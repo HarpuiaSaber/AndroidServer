@@ -17,7 +17,7 @@ namespace WebAPI.Entities
     }
     public enum ExamType
     {
-        A1 = 1,
-        A2 = 2
+        Theory = 1,
+        Trial = 2,
     }
 }

@@ -24,23 +24,59 @@ namespace WebAPI.Controllers.API
         [HttpGet]
         public async Task<List<QuestionDto>> GetRandomQuestion()
         {
-            var listQuestion = await _context.Questions.OrderBy(s => Guid.NewGuid()).Take(50).ToListAsync();
+            var listQuestionType1 = _context.Questions.Where(s => s.Type == QuestionType.Law)
+                .OrderBy(s => Guid.NewGuid()).Take(10);
+            var listQuestionType2 = _context.Questions.Where(s => s.Type == QuestionType.TrafficSign)
+                .OrderBy(s => Guid.NewGuid()).Take(5);
+            var listQuestionType3 = _context.Questions.Where(s => s.Type == QuestionType.Situation)
+                .OrderBy(s => Guid.NewGuid()).Take(5);
             var queryAnswer = _context.Answers.AsQueryable();
-            return (from q in listQuestion
-                    join a in queryAnswer on q.Id equals a.QuestionId into t
-                    select new QuestionDto
-                    {
-                        Id = q.Id,
-                        Content = q.Content,
-                        Explanation = q.Explanation,
-                        Type = q.Type,
-                        Answers = t.Select(s => new AnswerDto
-                        {
-                            Id = s.Id,
-                            Content = s.Content,
-                            IsCorrect = s.IsCorrect
-                        })
-                    }).ToList();
+            return await (from q in listQuestionType1
+                          join a in queryAnswer on q.Id equals a.QuestionId into t
+                          select new QuestionDto
+                          {
+                              Id = q.Id,
+                              Content = q.Content,
+                              Explanation = q.Explanation,
+                              Type = q.Type,
+                              Image = q.Image,
+                              Answers = t.Select(s => new AnswerDto
+                              {
+                                  Id = s.Id,
+                                  Content = s.Content,
+                                  IsCorrect = s.IsCorrect
+                              })
+                          }).Concat(from q in listQuestionType2
+                                    join a in queryAnswer on q.Id equals a.QuestionId into t
+                                    select new QuestionDto
+                                    {
+                                        Id = q.Id,
+                                        Content = q.Content,
+                                        Explanation = q.Explanation,
+                                        Type = q.Type,
+                                        Image = q.Image,
+                                        Answers = t.Select(s => new AnswerDto
+                                        {
+                                            Id = s.Id,
+                                            Content = s.Content,
+                                            IsCorrect = s.IsCorrect
+                                        })
+                                    }).Concat(from q in listQuestionType3
+                                              join a in queryAnswer on q.Id equals a.QuestionId into t
+                                              select new QuestionDto
+                                              {
+                                                  Id = q.Id,
+                                                  Content = q.Content,
+                                                  Explanation = q.Explanation,
+                                                  Type = q.Type,
+                                                  Image = q.Image,
+                                                  Answers = t.Select(s => new AnswerDto
+                                                  {
+                                                      Id = s.Id,
+                                                      Content = s.Content,
+                                                      IsCorrect = s.IsCorrect
+                                                  })
+                                              }).ToListAsync();
         }
         [HttpGet]
         public async Task<List<QuestionDto>> GetQuestionById(long id)
@@ -55,6 +91,7 @@ namespace WebAPI.Controllers.API
                               Content = q.Content,
                               Explanation = q.Explanation,
                               Type = q.Type,
+                              Image = q.Image,
                               Answers = t.Select(s => new AnswerDto
                               {
                                   Id = s.Id,
@@ -64,7 +101,7 @@ namespace WebAPI.Controllers.API
                           }).ToListAsync();
         }
         [HttpGet]
-        public async Task<List<WrongQuestionDto>> GetWrongQuestions(long userId)
+        public async Task<List<WrongQuestionDto>> GetFailQuestions(long userId)
         {
             var userWrongQuestions = _context.FailQuestions.Where(s => s.UserId == userId && !s.Passed);
             var listQuestion = _context.Questions.Where(s => s.Id == userId);
