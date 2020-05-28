@@ -8,5 +8,9 @@ namespace WebAPI.Controllers
         {
             return Redirect("swagger");
         }
+        public IActionResult Infor()
+        {
+            return View();
+        }
     }
 }

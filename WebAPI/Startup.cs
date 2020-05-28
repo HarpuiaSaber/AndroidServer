@@ -27,6 +27,8 @@ namespace WebAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddMvc();
+            ;
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Android Server API", Version = "v1" });
@@ -62,6 +64,8 @@ namespace WebAPI
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseStaticFiles();
+
             app.UseHttpsRedirection();
 
             app.UseRouting();
@@ -89,6 +93,7 @@ namespace WebAPI
             });
 
             app.UseMiddleware<ExceptionMiddleware>();
+
 
         }
     }
