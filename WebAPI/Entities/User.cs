@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WebAPI.Entities
@@ -16,5 +17,13 @@ namespace WebAPI.Entities
         [Required]
         public string Name { get; set; }
         public bool IsActive { get; set; }
+        public DateTime Dob { get; set; }
+        public Gender Gender { get; set; }
+        public string Phone { get; set; }
+    }
+    public enum Gender
+    {
+        Male = 0,
+        Female = 1
     }
 }

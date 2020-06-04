@@ -33,7 +33,10 @@ namespace WebAPI.Controllers.API
                     Id = s.Id,
                     Name = s.Name,
                     UserName = s.UserName,
-                    IsActive = s.IsActive
+                    IsActive = s.IsActive,
+                    Dob = s.Dob,
+                    Gender = s.Gender,
+                    Phone = s.Phone
                 }).ToListAsync();
         }
         [HttpGet]
@@ -45,7 +48,10 @@ namespace WebAPI.Controllers.API
                     Id = s.Id,
                     Name = s.Name,
                     UserName = s.UserName,
-                    IsActive = s.IsActive
+                    IsActive = s.IsActive,
+                    Dob = s.Dob,
+                    Gender = s.Gender,
+                    Phone = s.Phone
                 }).FirstOrDefaultAsync();
         }
         [HttpPost]
@@ -61,7 +67,10 @@ namespace WebAPI.Controllers.API
                 Name = dto.Name,
                 Password = dto.Password,
                 UserName = dto.UserName,
-                IsActive = true
+                IsActive = true,
+                Dob = dto.Dob,
+                Gender = dto.Gender,
+                Phone = dto.Phone
             };
             await _context.AddAsync(user);
             await _context.SaveChangesAsync();
@@ -100,10 +109,13 @@ namespace WebAPI.Controllers.API
                 return StatusCode((int)HttpStatusCode.InternalServerError, $"User: {old.UserName} đang bị khóa!!!");
             }
             old.Name = dto.Name;
+            old.Dob = dto.Dob;
+            old.Gender = dto.Gender;
+            old.Phone = dto.Phone;
             await _context.SaveChangesAsync();
             return Ok();
         }
-        [HttpPost]
+        [HttpGet]
         public async Task<ActionResult<UserDto>> Login(string userName, string password)
         {
             var user = await _context.Users.FirstOrDefaultAsync(s => s.UserName == userName);
@@ -123,18 +135,13 @@ namespace WebAPI.Controllers.API
             {
                 Id = user.Id,
                 Name = user.Name,
-                UserName = user.UserName
+                UserName = user.UserName,
+                IsActive = user.IsActive,
+                Dob = user.Dob,
+                Gender = user.Gender,
+                Phone = user.Phone
             };
-        }
-        [HttpGet]
-        public async Task<ActionResult> Logout()
-        {
-            await Task.Run(() =>
-            {
-
-            });
-            return Ok();
-        }
+        }     
         [HttpPost]
         public async Task<ActionResult> Deactive(long id)
         {

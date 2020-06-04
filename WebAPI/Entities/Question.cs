@@ -17,8 +17,8 @@ namespace WebAPI.Entities
 
     public enum QuestionType
     {
-        Law = 1,
-        TrafficSign = 2,
-        Situation = 3
+        Law = 0,
+        TrafficSign = 1,
+        Situation = 2
     }
 }
