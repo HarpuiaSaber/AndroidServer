@@ -14,5 +14,6 @@ namespace WebAPI.Daos
         public DbSet<Result> Results { get; set; }
         public DbSet<FailQuestion> FailQuestions { get; set; }
         public DbSet<Law> Laws { get; set; }
+        public DbSet<TraficSign> TraficSigns { get; set; }
     }
 }

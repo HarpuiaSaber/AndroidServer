@@ -7,27 +7,26 @@ using System.Threading.Tasks;
 
 namespace WebAPI.Entities
 {
-    [Table("Law")]
-    public class Law
+    [Table("TraficSign")]
+    public class TraficSign
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
         public long Id { get; set; }
+        public string Name { get; set; }
+        public string Image { get; set; }
         public string Content { get; set; }
-        public LawType Type { get; set; }
-        public string Punishment { get; set; }
+        public TraficSignType Type { get; set; }
     }
-
-    public enum LawType
+    public enum TraficSignType
     {
-        Hieulenh = 1,
-        Chuyenhuong = 2,
-        Chonguoi = 3,
-        Tocdo = 4,
-        Doxe = 5,
-        Giaytoxe = 6,
-        Duongcam = 7,
-        Nongdo= 8
+        Cam = 1,
+        Hieulenh = 2, 
+        Nguyhiem = 3,
+        Phu = 4,
+        Chidan = 5, 
+        Vachkeduong = 6,
+        Duongcaotoc = 7,
+        Duongdoingoai = 8
     }
 }
- 
