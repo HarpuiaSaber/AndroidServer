@@ -21,12 +21,10 @@ namespace WebAPI.Entities
     public enum TraficSignType
     {
         Cam = 1,
-        Hieulenh = 2, 
-        Nguyhiem = 3,
+        Hieulenh = 2,
+        Chidan = 3,
         Phu = 4,
-        Chidan = 5, 
-        Vachkeduong = 6,
-        Duongcaotoc = 7,
-        Duongdoingoai = 8
+        Nguyhien = 5,
+        Canhbao = 6,
     }
 }
