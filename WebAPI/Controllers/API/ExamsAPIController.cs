@@ -75,7 +75,7 @@ namespace WebAPI.Controllers.API
                               UserResult = t.Select(x => x.TotalCorrect).FirstOrDefault()
                           }).ToListAsync();
         }
-        [HttpGet]
+        [HttpPost]
         public async Task Create(ExamViewDto dto)
         {
             var exam = new Exam
@@ -116,7 +116,7 @@ namespace WebAPI.Controllers.API
                 await _context.SaveChangesAsync();
             }
         }
-        [HttpPost]
+        [HttpGet]
         public async Task<ActionResult<ExamDto>> Get(long id)
         {
             var exam = await _context.Exams.Where(s => s.Id == id).FirstOrDefaultAsync();
@@ -127,7 +127,7 @@ namespace WebAPI.Controllers.API
             var queryQuestionInExam = _context.QuestionInExams.Where(s => s.ExamId == id);
             var queryQuestion = _context.Questions.AsQueryable();
             var queyAnswer = _context.Answers.AsQueryable();
-            var questions = from qe in queryQuestionInExam
+            var questions = await(from qe in queryQuestionInExam
                             join q in queryQuestion on qe.QuestionId equals q.Id
                             join a in queyAnswer on q.Id equals a.QuestionId into t
                             select new QuestionDto
@@ -141,12 +141,13 @@ namespace WebAPI.Controllers.API
                                     Id = s.Id,
                                     Content = s.Content,
                                     IsCorrect = s.IsCorrect
-                                })
-                            };
+                                }).ToList()
+                            }).ToListAsync();
             return new ExamDto
             {
                 Id = exam.Id,
-                Questions = await questions.ToListAsync()
+               /// Questions = await questions.ToListAsync()
+                Questions = questions
             };
         }
         [HttpPost]
