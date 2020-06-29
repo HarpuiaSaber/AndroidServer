@@ -13,7 +13,7 @@ namespace WebAPI.Models.Dto
         public string Password { get; set; }
         public string Name { get; set; }
         public bool IsActive { get; set; }
-        public DateTime Dob { get; set; }
+        public string Dob { get; set; }
         public Gender Gender { get; set; }
         public string Phone { get; set; }
     }

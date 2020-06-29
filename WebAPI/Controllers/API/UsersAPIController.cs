@@ -34,7 +34,7 @@ namespace WebAPI.Controllers.API
                     Name = s.Name,
                     UserName = s.UserName,
                     IsActive = s.IsActive,
-                    Dob = s.Dob,
+                    Dob = s.Dob.ToString("dd/MM/yyyy"),
                     Gender = s.Gender,
                     Phone = s.Phone
                 }).ToListAsync();
@@ -49,7 +49,7 @@ namespace WebAPI.Controllers.API
                     Name = s.Name,
                     UserName = s.UserName,
                     IsActive = s.IsActive,
-                    Dob = s.Dob,
+                    Dob = s.Dob.ToString("dd/MM/yyyy"),
                     Gender = s.Gender,
                     Phone = s.Phone
                 }).FirstOrDefaultAsync();
@@ -68,7 +68,7 @@ namespace WebAPI.Controllers.API
                 Password = dto.Password,
                 UserName = dto.UserName,
                 IsActive = true,
-                Dob = dto.Dob,
+                Dob = DateTime.ParseExact(dto.Dob, "dd/MM/yyyy", null),
                 Gender = dto.Gender,
                 Phone = dto.Phone
             };
@@ -109,7 +109,7 @@ namespace WebAPI.Controllers.API
                 return StatusCode((int)HttpStatusCode.InternalServerError, $"User: {old.UserName} đang bị khóa!!!");
             }
             old.Name = dto.Name;
-            old.Dob = dto.Dob;
+            old.Dob = DateTime.ParseExact(dto.Dob, "dd/MM/yyyy", null);
             old.Gender = dto.Gender;
             old.Phone = dto.Phone;
             await _context.SaveChangesAsync();
@@ -123,7 +123,7 @@ namespace WebAPI.Controllers.API
             {
                 return StatusCode((int)HttpStatusCode.InternalServerError, $"Không tồn tại user: {userName}!!!");
             }
-            if (user.IsActive == false)
+            if (user.IsActive == false) 
             {
                 return StatusCode((int)HttpStatusCode.InternalServerError, $"User: {userName} đang bị khóa!!!");
             }
@@ -137,7 +137,7 @@ namespace WebAPI.Controllers.API
                 Name = user.Name,
                 UserName = user.UserName,
                 IsActive = user.IsActive,
-                Dob = user.Dob,
+                Dob = user.Dob.ToString("dd/MM/yyyy"),
                 Gender = user.Gender,
                 Phone = user.Phone
             };
