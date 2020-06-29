@@ -22,23 +22,10 @@ namespace WebAPI.Controllers.API
         {
             _context = context;
         }
-        [HttpPost]
-        public async Task<List<ExamViewDto>> GetAll(ExamSearch examSearch)
+        [HttpGet]
+        public async Task<List<ExamViewDto>> GetAll()
         {
-            var query = _context.Exams.AsQueryable();
-            if (examSearch.StartDate != null)
-            {
-                query = query.Where(s => s.CreatedDate >= examSearch.StartDate);
-            }
-            if (examSearch.EndDate != null)
-            {
-                query = query.Where(s => s.CreatedDate < examSearch.EndDate);
-            }
-            if (examSearch.Type != null)
-            {
-                query = query.Where(s => s.Type > examSearch.Type);
-            }
-            return await query.Select(s => new ExamViewDto
+            return await _context.Exams.Select(s => new ExamViewDto
             {
                 Id = s.Id,
                 Content = s.Content,
@@ -47,32 +34,20 @@ namespace WebAPI.Controllers.API
                 Type = s.Type
             }).ToListAsync();
         }
-        [HttpPost]
-        public async Task<List<ExamViewDto>> GetAllOfUser(ExamSearch examSearch, long userId)
+        [HttpGet]
+        public async Task<List<ExamViewDto>> GetAllOfUser(long userId)
         {
             var query = _context.Exams.AsQueryable();
-            if (examSearch.StartDate != null)
-            {
-                query = query.Where(s => s.CreatedDate >= examSearch.StartDate);
-            }
-            if (examSearch.EndDate != null)
-            {
-                query = query.Where(s => s.CreatedDate < examSearch.EndDate);
-            }
-            if (examSearch.Type != null)
-            {
-                query = query.Where(s => s.Type > examSearch.Type);
-            }
             return await (from e in query
-                          join r in _context.Results.Where(s => s.UserId == userId) on e.Id equals r.ExamId into t
+                          join r in _context.Results.Where(s => s.UserId == userId) on e.Id equals r.ExamId
                           select new ExamViewDto
                           {
                               Id = e.Id,
                               Content = e.Content,
                               CreatedDate = e.CreatedDate,
-                              Time = e.Time,
+                              Time = r.Time,
                               Type = e.Type,
-                              UserResult = t.Select(x => x.TotalCorrect).FirstOrDefault()
+                              UserResult = r.TotalCorrect
                           }).ToListAsync();
         }
         [HttpPost]
@@ -126,28 +101,48 @@ namespace WebAPI.Controllers.API
             }
             var queryQuestionInExam = _context.QuestionInExams.Where(s => s.ExamId == id);
             var queryQuestion = _context.Questions.AsQueryable();
-            var queyAnswer = _context.Answers.AsQueryable();
-            var questions = await(from qe in queryQuestionInExam
-                            join q in queryQuestion on qe.QuestionId equals q.Id
-                            join a in queyAnswer on q.Id equals a.QuestionId into t
-                            select new QuestionDto
-                            {
-                                Id = q.Id,
-                                Content = q.Content,
-                                Explanation = q.Explanation,
-                                Type = q.Type,
-                                Answers = t.Select(s => new AnswerDto
+            var queryAnswer = _context.Answers.AsQueryable();
+            var questions = await (from qe in queryQuestionInExam
+                                   join q in queryQuestion on qe.QuestionId equals q.Id
+                                   select new
+                                   {
+                                       Id = q.Id,
+                                       Content = q.Content,
+                                       Explanation = q.Explanation,
+                                       Type = q.Type,
+                                       Image = q.Image
+                                   }).ToListAsync();
+            var answer = await (from q in queryQuestion
+                                join a in queryAnswer on q.Id equals a.QuestionId into t
+                                from s in t.DefaultIfEmpty()
+                                select new
                                 {
+                                    QuestionId = q.Id,
                                     Id = s.Id,
                                     Content = s.Content,
                                     IsCorrect = s.IsCorrect
-                                }).ToList()
-                            }).ToListAsync();
+                                }).ToListAsync();
+            var result = (from q in questions
+                          join a in answer on q.Id equals a.QuestionId into t
+                          select new QuestionDto
+                          {
+                              Id = q.Id,
+                              Content = q.Content,
+                              Explanation = q.Explanation,
+                              Type = q.Type,
+                              Image = q.Image,
+                              Answers = t.Select(s => new AnswerDto
+                              {
+                                  Id = s.Id,
+                                  Content = s.Content,
+                                  IsCorrect = s.IsCorrect
+                              })
+                          }).ToList();
             return new ExamDto
             {
                 Id = exam.Id,
-               /// Questions = await questions.ToListAsync()
-                Questions = questions
+                /// Questions = await questions.ToListAsync()
+                Questions = result
             };
         }
         [HttpPost]
@@ -199,13 +194,14 @@ namespace WebAPI.Controllers.API
         public async Task<List<ResultDto>> Ranking(long id)
         {
             return await _context.Results.Where(s => s.ExamId == id)
-                .OrderByDescending(s => s.TotalCorrect).ThenByDescending(s => s.Time)
-                .Take(10)
+                .OrderByDescending(s => s.TotalCorrect).ThenBy(s => s.Time)
+                .Take(5)
                 .Select(s => new ResultDto
                 {
                     UserId = s.UserId,
                     UserName = s.User.UserName,
                     TotalCorrect = s.TotalCorrect,
+                    ExamId = s.ExamId,
                     Time = s.Time
                 }).ToListAsync();
         }
