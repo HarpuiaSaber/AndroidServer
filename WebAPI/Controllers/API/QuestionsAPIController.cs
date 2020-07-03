@@ -79,26 +79,25 @@ namespace WebAPI.Controllers.API
                                               }).ToListAsync();
         }
         [HttpGet]
-        public async Task<List<QuestionDto>> GetQuestionById(long id)
+        public async Task<QuestionDto> GetQuestionById(long id)
         {
-            var listQuestion = _context.Questions.Where(s => s.Id == id);
-            var queryAnswer = _context.Answers.AsQueryable();
-            return await (from q in listQuestion
-                          join a in queryAnswer on q.Id equals a.QuestionId into t
-                          select new QuestionDto
-                          {
-                              Id = q.Id,
-                              Content = q.Content,
-                              Explanation = q.Explanation,
-                              Type = q.Type,
-                              Image = q.Image,
-                              Answers = t.Select(s => new AnswerDto
-                              {
-                                  Id = s.Id,
-                                  Content = s.Content,
-                                  IsCorrect = s.IsCorrect
-                              })
-                          }).ToListAsync();
+            var question = await _context.Questions.Where(s => s.Id == id)
+                .Select(s => new QuestionDto
+                {
+                    Id = s.Id,
+                    Content = s.Content,
+                    Explanation = s.Explanation,
+                    Type = s.Type,
+                    Image = s.Image
+                }).SingleOrDefaultAsync();
+            question.Answers = _context.Answers.Where(s => s.QuestionId == id)
+                     .Select(a => new AnswerDto
+                     {
+                         Id = a.Id,
+                         Content = a.Content,
+                         IsCorrect = a.IsCorrect
+                     });
+            return question;
         }
         [HttpGet]
         public async Task<List<WrongQuestionDto>> GetFailQuestions(long userId)
