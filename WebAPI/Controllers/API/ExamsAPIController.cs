@@ -163,7 +163,7 @@ namespace WebAPI.Controllers.API
             var failQuestions = await _context.FailQuestions.Where(s => s.UserId == dto.UserId).ToListAsync();
             var failQuestionIds = failQuestions.Select(s => s.QuestionId);
             //add new fail
-            var newFails = dto.Answers.Where(s => !s.Value).Select(s => s.Key);
+            var newFails = dto.Answers.Where(s => !s.IsRight).Select(s => s.QuestionId);
             var needToAdd = newFails.Except(failQuestionIds)
                 .Select(s => new FailQuestion
                 {
@@ -182,7 +182,7 @@ namespace WebAPI.Controllers.API
             }
             _context.FailQuestions.UpdateRange(increaseTimes);
             //update passed
-            var newCorrects = dto.Answers.Where(s => s.Value).Select(s => s.Key);
+            var newCorrects = dto.Answers.Where(s => s.IsRight).Select(s => s.QuestionId);
             var passed = failQuestions.Where(s => newCorrects.Contains(s.QuestionId)).Select(s => s);
             foreach (var old in passed)
             {

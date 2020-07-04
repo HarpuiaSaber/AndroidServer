@@ -11,6 +11,11 @@ namespace WebAPI.Models.Dto
         public long ExamId { get; set; }
         public int Time { get; set; }
         public int TotalCorrect { get; set; }
-        public Dictionary<long, bool> Answers { get; set; }
+        public List<Answers> Answers { get; set; }
+    }
+    public class Answers
+    {
+        public long QuestionId { get; set; }
+        public bool IsRight { get; set; }
     }
 }
