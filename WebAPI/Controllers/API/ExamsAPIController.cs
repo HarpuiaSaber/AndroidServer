@@ -40,6 +40,7 @@ namespace WebAPI.Controllers.API
             var query = _context.Exams.AsQueryable();
             return await (from e in query
                           join r in _context.Results.Where(s => s.UserId == userId) on e.Id equals r.ExamId
+                          orderby r.DateAt descending
                           select new UserResultDto
                           {
                               Id = e.Id,
@@ -195,7 +196,7 @@ namespace WebAPI.Controllers.API
         public async Task<List<ResultDto>> Ranking(long id)
         {
             return await _context.Results.Where(s => s.ExamId == id)
-                .OrderByDescending(s => s.TotalCorrect).ThenBy(s => s.Time)
+                .OrderByDescending(s => s.TotalCorrect).ThenBy(s => s.Time).ThenBy(s => s.DateAt)
                 .Take(5)
                 .Select(s => new ResultDto
                 {
