@@ -35,6 +35,30 @@ namespace WebAPI.Controllers.API
             }).ToListAsync();
         }
         [HttpGet]
+        public async Task<List<ExamViewDto>> GetAllTrial()
+        {
+            return await _context.Exams.Where(s => s.Type == ExamType.Trial).Select(s => new ExamViewDto
+            {
+                Id = s.Id,
+                Content = s.Content,
+                CreatedDate = s.CreatedDate,
+                Time = s.Time,
+                Type = s.Type
+            }).ToListAsync();
+        }
+        [HttpGet]
+        public async Task<List<ExamViewDto>> GetAllTheory()
+        {
+            return await _context.Exams.Where(s => s.Type == ExamType.Theory).Select(s => new ExamViewDto
+            {
+                Id = s.Id,
+                Content = s.Content,
+                CreatedDate = s.CreatedDate,
+                Time = s.Time,
+                Type = s.Type
+            }).ToListAsync();
+        }
+        [HttpGet]
         public async Task<List<UserResultDto>> GetAllOfUser(long userId)
         {
             var query = _context.Exams.AsQueryable();
