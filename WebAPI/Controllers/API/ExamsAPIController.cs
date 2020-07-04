@@ -35,19 +35,19 @@ namespace WebAPI.Controllers.API
             }).ToListAsync();
         }
         [HttpGet]
-        public async Task<List<ExamViewDto>> GetAllOfUser(long userId)
+        public async Task<List<UserResultDto>> GetAllOfUser(long userId)
         {
             var query = _context.Exams.AsQueryable();
             return await (from e in query
                           join r in _context.Results.Where(s => s.UserId == userId) on e.Id equals r.ExamId
-                          select new ExamViewDto
+                          select new UserResultDto
                           {
                               Id = e.Id,
                               Content = e.Content,
-                              CreatedDate = e.CreatedDate,
+                              DateAt = r.DateAt.ToString("dd/MM/yyyy"),
                               Time = r.Time,
                               Type = e.Type,
-                              UserResult = r.TotalCorrect
+                              TotalCorrect = r.TotalCorrect
                           }).ToListAsync();
         }
         [HttpPost]
@@ -154,7 +154,8 @@ namespace WebAPI.Controllers.API
                 ExamId = dto.ExamId,
                 UserId = dto.UserId,
                 Time = dto.Time,
-                TotalCorrect = dto.TotalCorrect
+                TotalCorrect = dto.TotalCorrect,
+                DateAt = DateTime.Now
             };
             await _context.Results.AddAsync(result);
             await _context.SaveChangesAsync();
@@ -202,7 +203,8 @@ namespace WebAPI.Controllers.API
                     UserName = s.User.UserName,
                     TotalCorrect = s.TotalCorrect,
                     ExamId = s.ExamId,
-                    Time = s.Time
+                    Time = s.Time,
+                    DateAt = s.DateAt.ToString("dd/MM/yyyy")
                 }).ToListAsync();
         }
     }

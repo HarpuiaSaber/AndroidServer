@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WebAPI.Entities
@@ -17,5 +18,6 @@ namespace WebAPI.Entities
         public User User { get; set; }
         public int Time { get; set; }
         public int TotalCorrect { get; set; }
+        public DateTime DateAt { get; set; }
     }
 }
