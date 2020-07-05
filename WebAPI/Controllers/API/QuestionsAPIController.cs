@@ -11,7 +11,7 @@ using WebAPI.Models.Dto;
 
 namespace WebAPI.Controllers.API
 {
-    [Route("api/question/[action]")]
+    [Route("api/Question/[action]")]
     [ApiController]
     public class QuestionsAPIController : ControllerBase
     {
@@ -49,10 +49,12 @@ namespace WebAPI.Controllers.API
             var listQuestion = _context.Questions.AsQueryable();
             return await (from q in listQuestion
                           join w in userWrongQuestions on q.Id equals w.QuestionId
+                          orderby w.Times descending
                           select new WrongQuestionDto
                           {
                               Id = q.Id,
                               Content = q.Content,
+                              Times = w.Times
                           }).ToListAsync();
         }
     }

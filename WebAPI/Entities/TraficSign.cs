@@ -24,7 +24,7 @@ namespace WebAPI.Entities
         Hieulenh = 2,
         Chidan = 3,
         Phu = 4,
-        Nguyhien = 5,
+        Nguyhiem = 5,
         Canhbao = 6,
     }
 }
