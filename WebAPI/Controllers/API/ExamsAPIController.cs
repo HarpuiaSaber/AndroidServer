@@ -82,7 +82,7 @@ namespace WebAPI.Controllers.API
             {
                 Content = dto.Content,
                 Time = dto.Time,
-                Type = ExamType.Trial,
+                Type = dto.Type,
                 CreatedDate = DateTime.Now
             };
             await _context.Exams.AddAsync(exam);
